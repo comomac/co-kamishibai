@@ -1,0 +1,15 @@
+:javascript
+	document.addEventListener('DOMContentLoaded', function() {
+		// load redirect details
+		var el = document.location;
+		var url = el.href.replace(el.protocol + '//' + el.host + el.pathname, '');
+		url = url.replace('?redirect=', '');
+		document.getElementById('url_redirect').value = url;
+	});
+%div
+	%form(action="/login" method="post")
+		%h2 Login (Username/Password)
+		%input(type="text" name="username")
+		%input(name="password" type="password")
+		%input#url_redirect(type="hidden" name="url_redirect" value="")
+		%input(type="submit" value="Log In")

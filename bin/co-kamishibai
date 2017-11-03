@@ -1,0 +1,60 @@
+#!/usr/bin/env ruby
+# encoding: utf-8
+
+# making sure program runs in UTF-8 encoding in any environment
+Encoding.default_external = Encoding::UTF_8
+Encoding.default_internal = Encoding::UTF_8
+
+$debug = false
+
+if ARGV[0] == '--debug'
+	$debug = true
+	$LOAD_PATH << File.expand_path( File.dirname( File.expand_path( __FILE__ ) ) + '/../lib' )
+	ARGV.shift
+end
+
+if __FILE__ == $0
+	# locally ran in folder
+	load File.dirname(__FILE__) + '/../lib/co-kamishibai/functions.rb'
+else
+	require 'co-kamishibai/functions'
+end
+
+# load config file
+config_file = ARGV[0] || '~/etc/co-kamishibai.conf'
+config_file	= File.expand_path(config_file)
+unless FileTest.exists?(config_file)
+	puts "Please edit the config file then run again. #{config_file}"
+	create_config(config_file)
+	exit
+end
+
+load_config(config_file)
+
+$srcs = $SETTINGS[:SRCS].collect { |src|
+	fp = File.expand_path(src)
+
+	if FileTest.directory?( fp )
+		fp
+	else
+		puts "source don't exists: #{src}"
+	end
+}
+$srcs.compact!
+
+if $srcs.length <= 0
+	puts "no source exists!"
+	puts "Please edit the config file then start again. #{config_file}"
+	exit
+end
+
+
+# load bookmarks
+load_bookmarks
+
+if __FILE__ == $0
+	load File.dirname(__FILE__) + '/../lib/co-kamishibai.rb'
+else
+	require 'co-kamishibai'
+end
+CoKamishibai.run!

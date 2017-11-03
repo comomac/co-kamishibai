@@ -1,0 +1,35 @@
+:css
+	a {
+		background-color: #FFCC66;
+		display: block;
+		margin-bottom: 20px;
+		font-size: x-large;
+	}
+	a.read {
+		background-color: #00FF00;
+		display: block;
+		margin-bottom: 20px;
+		font-size: x-large;
+	}	
+:javascript
+	function homepage() {
+		window.location.href = "/browse/#{CGI::escape(File.dirname(@rdir))}?s=#{params[:s]}";
+	};
+	
+	document.addEventListener('keydown', function(e) {
+		if (e.keyCode == 27) {
+			homepage();
+			return false;
+		}
+	});
+%div
+	path: #{@dir}
+	&nbsp;
+%div
+	sources:
+	#{@srcs.join('')}
+%div
+	#{@lists.join('')}
+&nbsp;
+%div
+	eof

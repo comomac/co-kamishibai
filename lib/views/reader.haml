@@ -1,0 +1,173 @@
+:css
+	* {
+		margin: 0px;
+		padding: 0px;
+	}
+	img {
+		display: block;
+		margin-left: auto;
+		margin-right: auto;
+		max-width: 100px;
+		max-height: 100px;
+		width: auto;
+		height: auto;
+	}
+	a {
+		color: blue;
+		text-decoration: underline;
+		cursor: pointer;
+		cursor: hand;
+	}
+	.pad {
+		padding-top: 5px;
+		padding-bottom: 5px;
+	}
+:javascript	
+	// init
+	document.addEventListener('DOMContentLoaded', function() {
+		// change title
+		document.title = '#{@page} / #{@pages}';
+
+		// make the image resize according to browser window size
+		var el = document.getElementById('cbz_image');
+		el.style = 'max-width: ' + window.innerWidth + 'px; max-height: ' + window.innerHeight + 'px';
+		
+		// attach preload image function when image is loaded
+		document.getElementById('cbz_image').addEventListener('load', function() { 
+			preload(images); 
+		});
+	});
+
+	// action to change page
+	function navpage(i) {
+		var el = document.getElementById('cbz_image');
+		var elPage = el.getAttribute('page');
+
+		var pg = parseInt( elPage ) + i; 
+		if (pg < 1) pg = 1; 
+		if (pg > #{@pages}) pg = #{@pages}; 
+		if (pg == parseInt( elPage )) return false; 
+		if (i>0) { 
+			images = [ '/cbz/#{CGI::escape(@cbz)}?p=' + parseInt(pg + 1) + '&s=#{@src}' ]; 
+		} 
+		else { 
+			images = [ '/cbz/#{CGI::escape(@cbz)}?p=' + parseInt(pg - 1) + '&s=#{@src}' ]; 
+		} 
+		document.title = pg + ' / #{@pages}';
+		el.setAttribute('src', '/cbz/#{CGI::escape(@cbz)}?p=' + pg + '&s=#{@src}'); 
+		el.setAttribute('page', pg); 
+		// set bookmark 
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', '/setbookmark/' + pg + '/' + "#{CGI::escape(@cbz)}");
+		xhr.overrideMimeType("text/plain; charset=x-user-defined");
+		xhr.onreadystatechange = function(event) {
+			if (xhr.readyState > 3 && xhr.status === 200) {
+				// console.log("bookmart sent.", xhr.responseText); 
+			}
+		}
+		xhr.send();
+	};
+	
+	function homepage() {
+		window.location.href = "/browse/#{CGI::escape(File.dirname(@cbz))}?s=#{@src}";
+	};
+		
+	// keyboard commands
+	document.addEventListener('keydown', function(e) { 
+		if (e.keyCode == 37) {
+			// left key
+			navpage(-1); 
+			return false; 
+		} 
+		else if (e.keyCode == 39 || e.keyCode == 32) {
+			// right and space key
+			navpage(1); 
+			return false; 
+		} 
+		else if (e.keyCode == 27) {
+			// escape key
+			homepage(); 
+			return false; 
+		} 
+	});
+	
+	// preload images
+	var	images = [ 
+		"/cbz/#{CGI::escape(@cbz)}?p=#{@page+1}&s=#{@src}" 
+	];
+	
+	function preload(arrayOfImages) { 
+		// holds cached image, hidden
+		var ic = document.getElementById('image-cache');
+
+		// clear so wont grow too big
+		ic.innerHTML = '';
+
+		var el;
+		for (var i in arrayOfImages) {
+			el = document.createElement('img');
+			el.setAttribute('src', arrayOfImages[i]);
+			el.style = 'display: none;';
+
+			// load image in bg
+			ic.appendChild(el);
+		};
+	};
+	
+	function clicknav(event) {
+		if (event.clientX > (window.innerWidth / 2) ) {
+			navpage(1);
+		}
+		else {
+			navpage(-1);
+		}
+	};
+
+%div#screen(style="display: none;")
+	%span#width
+		w
+	x
+	%span#height
+		h
+	-
+	%span#action
+		action
+%div#reader_frame
+	%img#cbz_image(src="/cbz/#{CGI::escape(@cbz)}?p=#{@page}&s=#{@src}" page="#{@page}" onclick="clicknav(event);")
+	%div.pad(style="width: 33%; float: left; text-align: left")
+		%h3
+			&nbsp;&nbsp;&nbsp;
+			%a(onclick="navpage(-1);") prev
+	%div.pad(style="width: 34%; float: left; text-align: center; background-color: #ababab;")
+		%h3
+			%a(onclick="homepage();") home
+	%div.pad(style="width: 33%; float: left; text-align: right")
+		%h3
+			%a(onclick="navpage(1);") next
+			&nbsp;&nbsp;&nbsp;
+	%div#menu(style="width: 100%; float: left; text-align: center; display: block;")
+		%h3.pad(style="background-color: #cdcdcd;")
+			#{File.basename(@cbz)}
+		%h3.pad(style="background-color: #a0a0a0;")
+			%a(onclick="navpage(-10000);") |<
+			&nbsp;&nbsp;
+			%a(onclick="navpage(-100);") <<100
+			&nbsp;&nbsp;
+			%a(onclick="navpage(-50);") <<50
+			&nbsp;&nbsp;
+			%a(onclick="navpage(-25);") <<25
+			&nbsp;&nbsp;
+			%a(onclick="navpage(-10);") <<10
+			&nbsp;&nbsp;
+			%a(onclick="navpage(10);") >>10
+			&nbsp;&nbsp;			
+			%a(onclick="navpage(25);") >>25
+			&nbsp;&nbsp;
+			%a(onclick="navpage(50);") >>50
+			&nbsp;&nbsp;
+			%a(onclick="navpage(100);") >>100
+			&nbsp;&nbsp;
+			%a(onclick="navpage(10000);") >|
+	%div
+		&nbsp;
+%div#image-cache(style="display: none;")
