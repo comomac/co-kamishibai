@@ -1,13 +1,12 @@
 Gem::Specification.new do |s|
   s.name        = 'co-kamishibai'
-  s.version     = '0.9.3'
+  s.version     = '0.9.4'
   s.date        = '2013-11-10'
   s.summary     = "co-kamishibai"
   s.description = "Mini standalone Manga/Comic/CBZ Mini Web Server"
   s.authors     = ["Mac Ma"]
-  s.email       = 'gitmac@etneko.info'
-  s.homepage    = 'http://rubygems.org/gems/co-kamishibai'
-  s.license     = 'BSD3'
+  s.homepage    = 'https://github.com/comomac/co-kamishibai'
+  s.license     = 'bsd-2-clause'
 
   s.required_rubygems_version = '>= 2.0.3'
   s.rubyforge_project = 'co-kamishibai'
@@ -23,6 +22,7 @@ Gem::Specification.new do |s|
   s.executable = 'co-kamishibai'
   s.require_path = 'lib'
   s.files = Dir.glob('**/*')
+  s.files.reject! { |fn| fn.include?( '.gem' ) }
   s.files.reject! { |fn| fn.include?( '.git' ) }
   s.files.reject! { |fn| fn.include?( '.sublime-' ) }
   s.files.reject! { |fn| fn.include?( '._' ) }
